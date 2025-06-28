@@ -1,0 +1,41 @@
+# model/generate.py
+
+import torch
+import gc
+from transformers import AutoModelForCausalLM, AutoTokenizer
+
+MODEL_NAME = "Qwen/Qwen1.5-0.5B-Chat"
+
+# Load model and tokenizer once
+@torch.no_grad()
+def load_model():
+    torch.cuda.empty_cache()
+    gc.collect()
+
+    tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME, trust_remote_code=True)
+
+    model = AutoModelForCausalLM.from_pretrained(
+        MODEL_NAME,
+        torch_dtype=torch.bfloat16 if torch.cuda.is_available() else torch.float32,
+        trust_remote_code=True,
+        device_map="auto"
+    )
+    return model, tokenizer
+
+
+def generate_riddle(prompt, model, tokenizer, max_length=100):
+    input_ids = tokenizer.encode(prompt, return_tensors="pt")
+    input_ids = input_ids.to(model.device)
+
+    output = model.generate(
+        input_ids,
+        max_length=max_length,
+        num_return_sequences=1,
+        do_sample=True,
+        temperature=0.8,
+        top_k=50,
+        top_p=0.95
+    )
+
+    decoded = tokenizer.decode(output[0], skip_special_tokens=True)
+    return decoded.replace(prompt, "").strip()
