@@ -42,16 +42,19 @@ cd MathRiddleAI
 
 ```
 
-2. Install dependencies
+2. **Install dependencies**
 
 ```bash
 pip install -r requirements.txt
+
+```
 
 3. **Run the app**
 
 ```bash
 streamlit run app/app.py
 
+```
 ## 🧠 How It Works
 Dataset: Curated collection of math riddles and logic problems
 Model: Fine-tuned transformer (e.g., GPT-2) on riddle-style questions
